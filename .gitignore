@@ -1,0 +1,54 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Linux/Raspberry Pi
+*~
+.directory
+.Thumbs.db
+.swp
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# IDE
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Security (credentials, keys)
+*.pem
+*.key
+*.secret
+credentials.json
+.env
+
+# Project specific
+timecapsule.conf.local
+
+# Claude Code (private documentation, gitignored in public repos)
+CLAUDE.md

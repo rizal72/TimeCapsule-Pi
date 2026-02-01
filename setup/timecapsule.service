@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+
+<!--
+  TimeCapsule-Pi - Avahi Service Configuration
+  Advertises SMB and AFP services for macOS Time Machine auto-discovery
+
+  Place this file in: /etc/avahi/services/timecapsule.service
+
+  NOTE: Update the MAC address in the sys=waMA= line with your Pi's Ethernet MAC.
+  Get it with: ip link show eth0 | awk '/ether/{print $2}'
+-->
+
+<service-group>
+  <!-- Hostname (wildcard replaced with actual hostname) -->
+  <name replace-wildcards="yes">%h</name>
+
+  <!-- SMB file sharing service -->
+  <service>
+    <type>_smb._tcp</type>
+    <port>445</port>
+  </service>
+
+  <!-- Device information (identifies as Time Capsule) -->
+  <service>
+    <type>_device-info._tcp</type>
+    <port>0</port>
+    <txt-record>model=TimeCapsule</txt-record>
+  </service>
+
+  <!-- AFP/Time Machine advertisement -->
+  <service>
+    <type>_adisk._tcp</type>
+    <port>9</port>
+    <!-- dk0: Disk volume advertisement -->
+    <txt-record>dk0=adVN=TimeCapsule,adVF=0x82</txt-record>
+    <!-- sys: Wake-on-LAN MAC address (replace with your actual MAC) -->
+    <txt-record>sys=waMA=xx:xx:xx:xx:xx:xx</txt-record>
+  </service>
+</service-group>
