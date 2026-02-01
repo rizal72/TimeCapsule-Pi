@@ -220,7 +220,7 @@ This project is provided as-is for educational and personal use.
 
 ---
 
-**Note:** This project replaces expensive Apple Time Capsule hardware with a configurable, open-source solution based on Raspberry Pi. It's been tested and confirmed working on macOS Sequoia (15.x) with Raspberry Pi 4 running Raspberry Pi OS Bullseye.
+**Note:** This project replaces expensive Apple Time Capsule hardware with a configurable, open-source solution based on Raspberry Pi. It's been tested and confirmed working on macOS Tahoe (16.x) with Raspberry Pi 4 running Raspberry Pi OS Bullseye.
 
 ## Disclaimer
 
