@@ -20,7 +20,7 @@ This guide provides step-by-step instructions for manually setting up your Raspb
 
 Before starting, ensure you have:
 
-- **Raspberry Pi 4** (4GB+ RAM recommended) with Raspberry Pi OS (Bullseye or Bookworm)
+- **Raspberry Pi** (3B+/4/5, 1GB+ RAM recommended) with Raspberry Pi OS (Bullseye or Bookworm)
 - **External USB drive** (1TB+ recommended)
 - **SSH access** to your Raspberry Pi
 - **macOS computer** (10.9+)
@@ -319,7 +319,7 @@ rmdir ~/tm_test
 
 ### 7.3 Check Network Visibility
 
-On your Mac, open Finder and look for "TIMECAPSULE-PI4" under:
+On your Mac, open Finder and look for "TIMECAPSULE-PI" under:
 - **Shared** section in sidebar
 - **Network** section
 
@@ -331,7 +331,7 @@ On your Mac, open Finder and look for "TIMECAPSULE-PI4" under:
 
 1. Open **System Settings** → **General** → **Time Machine**
 2. Click **Add Backup Disk** or the **+** button
-3. Select **TIMECAPSULE-PI4** → **TimeCapsule**
+3. Select **TIMECAPSULE-PI** → **TimeCapsule**
 4. Click **Set Up Disk**
 5. Enter your Samba username and password
 6. Check **Remember this password in my keychain**
@@ -363,9 +363,9 @@ You should see a `.Spotlight-V100` folder and a `Backups.backupdb` folder.
 ```ini
 [global]
     # Server identification
-    server string = Raspberry Pi 4 Time Machine
+    server string = Raspberry Pi Time Machine
     workgroup = WORKGROUP
-    netbios name = TIMECAPSULE-PI4
+    netbios name = TIMECAPSULE-PI
 
     # Logging
     log file = /var/log/samba/log.%m
@@ -408,7 +408,7 @@ You should see a `.Spotlight-V100` folder and a `Backups.backupdb` folder.
 
 # Time Machine Share
 [TimeCapsule]
-    comment = Time Machine Backup on Pi4
+    comment = Time Machine Backup on Raspberry Pi
     path = /mnt/timecapsule
     browseable = yes
     read only = no

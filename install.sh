@@ -351,7 +351,7 @@ create_smb_conf() {
 [global]
     server string = Raspberry Pi 4 Time Machine
     workgroup = WORKGROUP
-    netbios name = TIMECAPSULE-PI4
+    netbios name = TIMECAPSULE-PI
 
     log file = /var/log/samba/log.%m
     max log size = 1000
@@ -478,7 +478,7 @@ print_summary() {
     echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
     echo
     echo -e "${BLUE}Configuration Summary:${NC}"
-    echo "  Server name:     TIMECAPSULE-PI4"
+    echo "  Server name:     TIMECAPSULE-PI"
     echo "  Share name:      $SHARE_NAME"
     echo "  Mount point:     $MOUNT_POINT"
     echo "  Time Machine user: $TM_USER"
@@ -487,7 +487,7 @@ print_summary() {
     echo -e "${YELLOW}Next steps on your Mac:${NC}"
     echo "  1. Open System Settings → General → Time Machine"
     echo "  2. Click 'Add Backup Disk'"
-    echo "  3. Select 'TIMECAPSULE-PI4' → '$SHARE_NAME'"
+    echo "  3. Select 'TIMECAPSULE-PI' → '$SHARE_NAME'"
     echo "  4. Enter username: $TM_USER"
     echo "  5. Enter your Samba password"
     echo "  6. Start your first backup!"

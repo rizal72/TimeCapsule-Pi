@@ -26,7 +26,7 @@ This document provides a deep dive into the technical architecture of TimeCapsul
                                │ SMB3 Protocol + AFP announcements
                                │
 ┌──────────────────────────────▼──────────────────────────────────┐
-│                         Raspberry Pi 4                           │
+│                         Raspberry Pi                           │
 │                                                                   │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │                    Avahi Daemon                           │  │
@@ -204,7 +204,7 @@ Avahi implements the mDNS (Multicast DNS) and DNS-SD (Service Discovery) protoco
 1. **Hostname Resolution**
    - Devices on local network broadcast queries
    - Each device responds to queries for its own hostname
-   - Example: `ping pi4.local` resolves without a DNS server
+   - Example: `ping raspberrypi.local` resolves without a DNS server
 
 2. **Service Discovery**
    - Devices broadcast services they provide
@@ -255,13 +255,13 @@ Our Avahi service file advertises three services:
 └──────────────────┘                                    └──────────────────┘
       ▲                                                           │
       │                                                           │ mDNS Response
-      │                                                           │ "I'm pi4.local,
+      │                                                           │ "I'm raspberrypi.local,
       │                                                           │  SMB on port 445"
       │                                                           ▼
 ┌──────────────────┐                                   ┌──────────────────┐
 │   Finder shows   │ <────────────────────────────────── │                  │
 │  "TIMECAPSULE-"  │         Auto-appears in sidebar     │                  │
-│     "PI4"        │                                    └──────────────────┘
+│     "PI"        │                                    └──────────────────┘
 └──────────────────┘
 ```
 
@@ -276,7 +276,7 @@ Our Avahi service file advertises three services:
 │                    Authentication Flow                    │
 └──────────────────────────────────────────────────────────┘
 
-1. macOS connects to smb://pi4.local/TimeCapsule
+1. macOS connects to smb://raspberrypi.local/TimeCapsule
    │
 2. Samba requests username/password
    │

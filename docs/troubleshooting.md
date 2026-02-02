@@ -103,7 +103,7 @@ This guide covers common issues and their solutions when setting up and running 
 
 ### Share doesn't appear in Finder
 
-**Symptom:** TIMECAPSULE-PI4 doesn't show up in Finder sidebar or Network.
+**Symptom:** TIMECAPSULE-PI doesn't show up in Finder sidebar or Network.
 
 **Solutions:**
 
@@ -157,7 +157,7 @@ This guide covers common issues and their solutions when setting up and running 
 
 3. Check network connectivity:
    ```bash
-   ping pi4.local
+   ping hostname.local
    # or
    ping 192.168.1.XX
    ```
@@ -165,7 +165,7 @@ This guide covers common issues and their solutions when setting up and running 
 4. Verify SMB port is open:
    ```bash
    # From Mac
-   nc -zv pi4.local 445
+   nc -zv hostname.local 445
    ```
 
 5. Check firewall rules on Pi:
@@ -295,7 +295,7 @@ This guide covers common issues and their solutions when setting up and running 
    iperf3 -s
 
    # On Mac (install iperf3 first)
-   iperf3 -c pi4.local
+   iperf3 -c hostname.local
    ```
 
 2. If on WiFi, switch to Ethernet:
@@ -388,7 +388,7 @@ This guide covers common issues and their solutions when setting up and running 
 
 1. This is normal during active backups
    - SMB3 encryption is CPU intensive
-   - Raspberry Pi 4 can handle ~80-100 MB/s with encryption
+   - Raspberry Raspberry Pi can handle ~80-100 MB/s with encryption
 
 2. Reduce encryption level:
    ```ini
@@ -617,22 +617,22 @@ journalctl -f
 
 ```bash
 # Test SMB connection from Mac
-nc -zv pi4.local 445
+nc -zv hostname.local 445
 
 # Test mDNS resolution
-dns-sd -Q pi4.local
+dns-sd -Q hostname.local
 
 # Browse all mDNS services (Mac)
 dns-sd -B _smb._tcp
 
 # Ping test
-ping -c 5 pi4.local
+ping -c 5 hostname.local
 
 # Measure network speed (install iperf3 first)
 # On Pi:
 iperf3 -s
 # On Mac:
-iperf3 -c pi4.local
+iperf3 -c hostname.local
 ```
 
 ---

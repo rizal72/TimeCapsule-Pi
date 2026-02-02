@@ -1,8 +1,8 @@
 # TimeCapsule-Pi - Turn your Raspberry Pi into a Time Machine Server
 
-A complete, production-ready solution to transform a Raspberry Pi 4 into a **Time Machine backup server** for macOS, replacing the need for an expensive Apple Time Capsule.
+A complete, production-ready solution to transform a Raspberry Pi (3B+/4/5) into a **Time Machine backup server** for macOS, replacing the need for an expensive Apple Time Capsule.
 
-![Raspberry Pi 4](https://img.shields.io/badge/Raspberry%20Pi-4-red)
+![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi-3%2B%204%2B%205-red)
 ![Samba](https://img.shields.io/badge/Samba-4.13+-blue)
 ![macOS](https://img.shields.io/badge/macOS-Time%20Machine-success)
 ![License](https://img.shields.io/badge/License-MIT-green)
@@ -69,7 +69,7 @@ A complete, production-ready solution to transform a Raspberry Pi 4 into a **Tim
    - Configure auto-mount on boot
 
 5. **On your Mac:** Open System Settings → General → Time Machine → Add Backup Disk
-   - Select **TIMECAPSULE-PI4** → **TimeCapsule**
+   - Select **TIMECAPSULE-PI** → **TimeCapsule**
    - Enter your credentials
    - Start your first backup!
 
@@ -85,7 +85,7 @@ After installation, your Time Capsule will be configured as:
 
 | Setting | Value |
 |---------|-------|
-| **Server name** | `TIMECAPSULE-PI4` |
+| **Server name** | `TIMECAPSULE-PI` |
 | **Share name** | `TimeCapsule` |
 | **Protocol** | SMB3 (SMB2/3 forced, SMB1 disabled) |
 | **Quota** | 2TB (configurable) |
@@ -97,7 +97,7 @@ Edit `/etc/samba/smb.conf` to customize:
 
 ```ini
 [TimeCapsule]
-    comment = Time Machine Backup on Pi4
+    comment = Time Machine Backup on Raspberry Pi
     path = /mnt/timecapsule
     browseable = yes
     read only = no
