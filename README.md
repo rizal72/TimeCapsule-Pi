@@ -88,7 +88,7 @@ After installation, your Time Capsule will be configured as:
 | **Server name** | `TIMECAPSULE-PI` |
 | **Share name** | `TimeCapsule` |
 | **Protocol** | SMB3 (SMB2/3 forced, SMB1 disabled) |
-| **Quota** | 2TB (configurable) |
+ | **Quota** | 1TB (configurable) |
 | **Authentication** | User-based (no guest access) |
 
 ### Customization
