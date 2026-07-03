@@ -11,6 +11,12 @@ This file provides coding conventions and guidelines for TimeCapsule-Pi, a Raspb
 - **Services:** Samba, Avahi
 - **No:** build system, automated tests, package managers
 
+**Repository & Deployment:**
+- Il repo vive SOLO su questo Mac (MacBook di Riccardo)
+- La Pi4 (100.124.43.88 / pi4.tail9350d7.ts.net via Tailscale) **non ha il repo clonato**
+- Il codice deployato sulla Pi4 e' applicato manualmente o via `install.sh`
+- SSH: `ssh pi@pi4.tail9350d7.ts.net` (o IP diretto 100.124.43.88)
+
 ## Commands
 
 ### No Build/Lint/Test Framework
@@ -44,6 +50,20 @@ avahi-browse -a --terminate
 # Check USB drives
 lsblk
 lsusb
+```
+
+### Tailscale / Remote Access
+```bash
+# SSH to Pi4
+ssh pi@pi4.tail9350d7.ts.net
+# or
+ssh pi@100.124.43.88
+
+# Check Samba reachable via Tailscale from Mac
+nc -zv pi4.tail9350d7.ts.net 445
+
+# Mount Time Capsule share via Tailscale
+open smb://pi4.tail9350d7.ts.net/TimeCapsule
 ```
 
 ### Testing Single Functions in install.sh
