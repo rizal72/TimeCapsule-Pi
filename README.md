@@ -165,11 +165,68 @@ sudo systemctl restart smbd nmbd
 
 ### Tailscale Remote Access
 
-Your Time Capsule works over Tailscale VPN:
+Your Time Capsule works over Tailscale VPN, allowing backups from anywhere -- and it also works when you are on the same local network, so you can use a single address everywhere.
 
-1. Install Tailscale on your Pi: `curl -fsSL https://tailscale.com/install.sh | sh`
-2. Log in: `sudo tailscale up`
-3. On your Mac (off-site), connect to: `smb://your-tailscale-ip`
+#### 1. Install Tailscale on the Pi
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+
+#### 2. Allow Tailscale connections in Samba
+
+**Important:** If you installed TimeCapsule-Pi with a version before July 2026, Samba may be configured to only listen on your local network. To allow connections via Tailscale, edit `/etc/samba/smb.conf` and remove (or comment out) these lines:
+
+```ini
+# bind interfaces only = yes
+# interfaces = 127.0.0.1 192.168.1.0/24
+```
+
+Then restart Samba:
+
+```bash
+sudo systemctl restart smbd nmbd
+```
+
+New installations from `install.sh` after July 2026 already include this fix.
+
+#### 3. Find the MagicDNS hostname
+
+Tailscale provides a stable hostname that works both remotely and on your local network:
+
+```bash
+tailscale status
+# Look for your Pi's name, e.g. pi4
+```
+
+The full MagicDNS hostname is `<hostname>.<tailnet>.ts.net`. To find yours:
+
+```bash
+tailscale status --json | grep MagicDNSSuffix
+# Example output: "MagicDNSSuffix": "tail9350d7.ts.net"
+# Your Pi's address: pi4.tail9350d7.ts.net
+```
+
+#### 4. Connect from your Mac
+
+From anywhere (home or away), use **Cmd+K** in Finder:
+
+```
+smb://<your-pi-hostname>.tailnet.ts.net/TimeCapsule
+```
+
+For example: `smb://pi4.tail9350d7.ts.net/TimeCapsule`
+
+Enter your Samba username and password -- the same credentials you use locally.
+
+#### 5. Existing backups are preserved
+
+When you switch from a local address (e.g. `smb://TIMECAPSULE-PI.local`) to the Tailscale hostname, Time Machine will detect your existing `.sparsebundle` on the share and continue using it. The first backup via Tailscale may show a long "Preparing" phase -- this is normal, Time Machine is verifying the existing sparsebundle integrity, not re-uploading everything. Subsequent backups will be incremental.
+
+#### 6. Use one address everywhere
+
+Because the Tailscale MagicDNS hostname resolves both locally (direct connection) and remotely (via Tailscale), you can set it as your **only** Time Machine backup destination and forget about switching addresses when you change location.
 
 ### Multiple Users
 

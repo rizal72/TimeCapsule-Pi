@@ -403,8 +403,8 @@ You should see a `.Spotlight-V100` folder and a `Backups.backupdb` folder.
     aio write size = 16384
 
     # Network
-    bind interfaces only = yes
-    interfaces = 127.0.0.1 192.168.1.0/24
+    # Not binding to specific interfaces to allow Tailscale/remote access.
+    # Security is handled by user authentication (valid users, security = user).
 
 # Time Machine Share
 [TimeCapsule]
@@ -484,7 +484,7 @@ avahi-browse -a --terminate
 
 ## Next Steps
 
-- [ ] Configure Tailscale for remote access
+- [ ] Configure Tailscale for remote access (see [README.md](README.md#tailscale-remote-access))
 - [ ] Set up multiple users
 - [ ] Adjust quota limits
 - [ ] Monitor backup logs
