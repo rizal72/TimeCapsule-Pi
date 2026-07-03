@@ -52,3 +52,4 @@ timecapsule.conf.local
 
 # Claude Code (private documentation, gitignored in public repos)
 CLAUDE.md
+.claude/

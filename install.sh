@@ -377,8 +377,8 @@ create_smb_conf() {
     read raw = yes
     write raw = yes
 
-    bind interfaces only = yes
-    interfaces = 127.0.0.1 192.168.1.0/24
+    # Not binding to specific interfaces to allow Tailscale/remote access.
+    # Security is handled by user authentication.
 
 [$SHARE_NAME]
     comment = Time Machine Backup on Pi4
