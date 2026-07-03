@@ -12,10 +12,10 @@ This file provides coding conventions and guidelines for TimeCapsule-Pi, a Raspb
 - **No:** build system, automated tests, package managers
 
 **Repository & Deployment:**
-- Il repo vive SOLO su questo Mac (MacBook di Riccardo)
-- La Pi4 (100.124.43.88 / pi4.tail9350d7.ts.net via Tailscale) **non ha il repo clonato**
-- Il codice deployato sulla Pi4 e' applicato manualmente o via `install.sh`
-- SSH: `ssh pi@pi4.tail9350d7.ts.net` (o IP diretto 100.124.43.88)
+- The repo lives ONLY on this Mac (MacBook of Riccardo)
+- The Pi4 (100.124.43.88 / pi4.tail9350d7.ts.net via Tailscale) **does not have the repo cloned**
+- Code deployed on Pi4 is applied manually or via `install.sh`
+- SSH: `ssh pi@pi4.tail9350d7.ts.net` (or direct IP 100.124.43.88)
 
 ## Commands
 
