@@ -71,11 +71,14 @@ check_root() {
 detect_usb_drives() {
     print_step "Detecting USB drives..."
 
-    # Get list of USB drives (excluding system drive)
-    local drives=($(lsblk -d -n -o NAME,MODEL,SIZE,TRAN | grep -v "sda" | grep -E "usb|sdb|sdc|sdd|sde|sdf" | awk '{print $1}'))
+    # Every disk except the one carrying the root filesystem. Filtering by name
+    # ("sda") or by transport misses the common case of a Pi that boots from USB,
+    # where the system disk sits on the same transport as the backup drive.
+    local root_disk=$(lsblk -no pkname "$(findmnt -n -o SOURCE /)" 2>/dev/null | head -1)
+    local drives=($(lsblk -d -n -o NAME,TYPE | awk -v root="$root_disk" '$2=="disk" && $1 != root {print $1}'))
 
     if [[ ${#drives[@]} -eq 0 ]]; then
-        print_error "No USB drives detected!"
+        print_error "No external drives detected!"
         print_info "Please connect your external USB drive and run the script again."
         exit 1
     fi
