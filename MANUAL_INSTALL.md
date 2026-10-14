@@ -339,11 +339,16 @@ On your Mac, open Finder and look for "TIMECAPSULE-PI" under:
 
 1. Open **System Settings** → **General** → **Time Machine**
 2. Click **Add Backup Disk** or the **+** button
-3. Select **TIMECAPSULE-PI** → **TimeCapsule**
+3. Select **TIMECAPSULE-PI** → **TimeCapsule** — or, when you reach the Pi over
+   Tailscale, its MagicDNS name (`smb://<pi>.<tailnet>.ts.net/TimeCapsule`)
 4. Click **Set Up Disk**
 5. Enter your Samba username and password
 6. Check **Remember this password in my keychain**
 7. Click **Connect**
+
+Keep the same name every time: Time Machine stores the destination by its URL, so
+pick one name — Tailscale or local — and stay with it, instead of ending up with
+two destination entries pointing at the same share.
 
 ### 8.2 First Backup
 

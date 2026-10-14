@@ -69,9 +69,14 @@ A complete, production-ready solution to transform a Raspberry Pi (3B+/4/5) into
    - Configure auto-mount on boot
 
 5. **On your Mac:** Open System Settings → General → Time Machine → Add Backup Disk
-   - Select **TIMECAPSULE-PI** → **TimeCapsule**
+   - Select **TIMECAPSULE-PI** → **TimeCapsule** — or, if you reach the Pi over
+     Tailscale, its MagicDNS name (see [Tailscale Remote Access](#tailscale-remote-access))
    - Enter your credentials
    - Start your first backup!
+
+> Keep the same name every time: Time Machine stores the destination by its URL,
+> so pick one name — Tailscale or local — and stay with it, instead of ending up
+> with two destination entries pointing at the same share.
 
 ### Option 2: Manual Installation
 
@@ -245,7 +250,6 @@ Then add them to `valid users` in `/etc/samba/smb.conf`.
 ```
 TimeCapsule-Pi/
 ├── README.md              # This file
-├── README.it.md           # Italian documentation
 ├── CLAUDE.md              # AI assistant guidelines
 ├── MANUAL_INSTALL.md      # Detailed manual setup guide
 ├── install.sh             # Automated installer script
