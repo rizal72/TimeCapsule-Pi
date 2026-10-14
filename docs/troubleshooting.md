@@ -321,31 +321,112 @@ This guide covers common issues and their solutions when setting up and running 
 
 ---
 
-### Time Machine reports "not enough space"
+### Time Machine reports "not enough space" / "the backup disk is full"
 
-**Symptom:** Time Machine says there's not enough space but the drive is not full.
+**Symptom:** macOS says the backup disk is full, or the backup fails with
+`No space left on device` (errno 28), while the drive looks only partly used.
+
+**Cause:** macOS prunes old backups against the numbers Samba reports, never
+against the real filesystem. Samba reports the share as `total = fruit:time
+machine max size`, `used = size of the sparsebundle`, `free = total - used`
+(mechanism: docs/architecture.md § Quota Management). Two opposite
+misconfigurations give the same symptom:
+
+| What is wrong | What macOS sees | Effect |
+|---|---|---|
+| quota > real disk size | free space that does not exist | never prunes, fills the disk, then `ENOSPC` |
+| quota < size of the sparsebundle | `free = 0` | refuses the backup immediately and cannot even prune |
 
 **Solutions:**
 
-1. Check actual disk usage:
+1. Read the three numbers:
    ```bash
-   df -h /mnt/timecapsule
+   # on the Pi
+   df -h /mnt/timecapsule                            # real filesystem size
+   sudo du -sh /mnt/timecapsule/*.sparsebundle       # used by Time Machine
+   grep "time machine max size" /etc/samba/smb.conf  # what macOS is told
    ```
 
-2. Check quota setting:
-   ```bash
-   grep "time machine max size" /etc/samba/smb.conf
-   ```
-
-3. Increase quota in smb.conf:
+2. The quota must sit between used and disk size. Coming from `free = 0`, raise
+   it **above** the sparsebundle size, restart Samba and let macOS prune:
    ```ini
-   fruit:time machine max size = 4T
+   fruit:time machine max size = 890G
+   ```
+   ```bash
    sudo systemctl restart smbd
    ```
 
-4. Let Time Machine manage old backups:
-   - Time Machine automatically deletes old backups when space is needed
-   - This is normal behavior
+3. Make the Mac forget the cached numbers: unmount the volume under
+   `/Volumes/.timemachine/<server>/<id>/<share>` (or remove and re-add the
+   destination — the backup data stays either way).
+
+4. Start a backup. macOS now sees a nearly-full destination and deletes the
+   oldest backups. Once the used space has dropped, tighten the quota to ~85% of
+   the disk and restart Samba again.
+
+5. If the filesystem is already at 100%, free real space first: ext4 reserves 5%
+   for root and the SMB user cannot touch it.
+   ```bash
+   sudo tune2fs -m 1 /dev/sda1     # 1% reserved for root instead of 5%
+   df -h /mnt/timecapsule
+   ```
+
+Do **not** raise the quota above the drive size to fix this, and do not lower it
+below the size of the existing sparsebundle: each of the two guarantees a
+different failure.
+
+---
+
+### Time Machine retries the same thinning, no space is freed
+
+**Symptom:** the Mac shows the backup as running, the Pi's used space never
+drops, and `log show` repeats:
+
+```text
+Snapshot deletion failed with EAGAIN ... suggesting there are undeletable
+snapshots on disk '/Volumes/<backup volume>'
+Failed to wait for backup deletions, error: Error Domain=NSPOSIXErrorDomain
+Code=92 "Illegal byte sequence"
+Failed to remove directory '<backup>/Macintosh HD - Data/usr/local/Cellar/...',
+error: POSIXError(_nsError: ... Code=66 "Directory not empty")
+Error Domain=NSOSStatusErrorDomain Code=-47 "fBsyErr: File is busy (delete)"
+```
+
+The quota is correct at this point (macOS sees free space), but the pruning
+itself fails: something keeps files inside the mounted disk image busy, so the
+oldest backups are renamed to `<timestamp>.previous` and then never removed.
+
+**Diagnosis:**
+
+```bash
+# backups stuck in the .previous / .interrupted state
+ls "/Volumes/<backup volume>" | grep -E '\.previous$|\.interrupted$'
+
+# is Spotlight indexing the backup volume? (a known holder of files)
+mdutil -s "/Volumes/<backup volume>"
+```
+
+Leftover `*.previous` folders from months ago mean the thinning has been failing
+for that long, and the destination only survived until the disk filled up.
+
+**Solutions, in order:**
+
+1. Let the current attempt end before touching anything; Time Machine retries a
+   few times on its own.
+2. Unmount the destination volume and the disk image, reboot the Mac, retry:
+   stale file handles are the usual cause and a reboot drops them.
+3. Turn Spotlight indexing off for the backup volume:
+   ```bash
+   sudo mdutil -i off "/Volumes/<backup volume>"
+   ```
+   The mount point changes between sessions, so add the destination in System
+   Settings → Spotlight → Privacy → Search privacy to make it permanent.
+4. Remove the stuck folders by hand *inside the mounted image*, then retry:
+   ```bash
+   sudo rm -rf "/Volumes/<backup volume>/<timestamp>.previous"
+   ```
+5. Last resort: delete the sparsebundle and start a fresh backup. All previous
+   history is lost — see "Sparsebundle corruption" below.
 
 ---
 

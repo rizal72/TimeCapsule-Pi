@@ -19,7 +19,13 @@ NC='\033[0m' # No Color
 MOUNT_POINT="/mnt/timecapsule"
 SHARE_NAME="TimeCapsule"
 SERVICE_NAME="timecapsule"
-QUOTA_SIZE="2T"
+# Time Machine prunes old backups against the quota advertised over SMB, never
+# against the real filesystem. A quota larger than the disk means nothing is ever
+# deleted and the disk fills up until every write fails with ENOSPC (macOS shows
+# it as "the backup disk is full"). calculate_quota() derives it from the drive.
+QUOTA_PERCENT=85
+QUOTA_SIZE=""   # set by calculate_quota(), e.g. "770G"
+QUOTA_GB=""     # same value in whole gigabytes
 
 # Functions
 print_header() {
@@ -254,7 +260,9 @@ EOF
 
     # Format as ext4
     print_info "Formatting ${partition} as ext4..."
-    mkfs.ext4 -L TimeCapsule "$partition"
+    # -m 1: the ext4 default of 5% reserved for root is invisible to the SMB user
+    # and shows up as a phantom "No space left on device" once the disk is full.
+    mkfs.ext4 -m 1 -L TimeCapsule "$partition"
 
     print_info "Drive formatted successfully."
 }
@@ -307,6 +315,24 @@ setup_mount() {
     print_info "Drive mounted at $MOUNT_POINT"
 }
 
+# Derive the Time Machine quota from the real drive size
+calculate_quota() {
+    print_step "Calculating Time Machine quota..."
+
+    local fs_gb=$(( $(df -B1 --output=size "$MOUNT_POINT" | tail -1) / 1024 / 1024 / 1024 ))
+    QUOTA_GB=$(( fs_gb * QUOTA_PERCENT / 100 / 10 * 10 ))   # round down to 10G
+
+    if [[ $QUOTA_GB -lt 10 ]]; then
+        print_error "Cannot determine the drive size to size the quota."
+        exit 1
+    fi
+
+    QUOTA_SIZE="${QUOTA_GB}G"
+    print_info "Drive size: ${fs_gb}G"
+    print_info "Time Machine quota: $QUOTA_SIZE (${QUOTA_PERCENT}% of the drive)"
+    print_info "macOS prunes old backups against this quota, so it must stay below ${fs_gb}G."
+}
+
 # Configure Samba
 configure_samba() {
     print_step "Configuring Samba..."
@@ -329,6 +355,13 @@ configure_samba() {
 
     # Update valid users
     sed -i "s/valid users = .*/valid users = $TM_USER/" /etc/samba/smb.conf
+
+    # Size the quota from the real drive (the template ships a placeholder value)
+    sed -i "s|^\(.*\)fruit:time machine max size = .*|\1fruit:time machine max size = $QUOTA_SIZE|" /etc/samba/smb.conf
+    if ! grep -q "^ *fruit:time machine max size" /etc/samba/smb.conf; then
+        sed -i "/^\[$SHARE_NAME\]/a\    fruit:time machine max size = $QUOTA_SIZE" /etc/samba/smb.conf
+        print_warning "Quota line missing from the template: added $QUOTA_SIZE."
+    fi
 
     # Test configuration
     print_info "Testing Samba configuration..."
@@ -463,7 +496,17 @@ run_tests() {
         exit 1
     fi
 
-    # Test 3: List Samba shares
+    # Test 3: the quota must leave real headroom on the filesystem
+    print_info "Checking Time Machine quota..."
+    local fs_gb=$(( $(df -B1 --output=size "$MOUNT_POINT" | tail -1) / 1024 / 1024 / 1024 ))
+    if [[ ${QUOTA_GB:-0} -ge $fs_gb ]]; then
+        print_error "Quota ($QUOTA_SIZE) is not smaller than the drive (${fs_gb}G)."
+        print_error "Time Machine would never prune and the disk would fill up."
+        exit 1
+    fi
+    print_info "Quota $QUOTA_SIZE leaves $(( fs_gb - QUOTA_GB ))G of real headroom."
+
+    # Test 4: List Samba shares
     print_info "Available Samba shares:"
     smbclient -L localhost -U "$TM_USER%" -c 2>/dev/null || true
 
@@ -482,7 +525,7 @@ print_summary() {
     echo "  Share name:      $SHARE_NAME"
     echo "  Mount point:     $MOUNT_POINT"
     echo "  Time Machine user: $TM_USER"
-    echo "  Quota:           $QUOTA_SIZE"
+    echo "  Quota:           $QUOTA_SIZE (${QUOTA_PERCENT}% of the drive)"
     echo
     echo -e "${YELLOW}Next steps on your Mac:${NC}"
     echo "  1. Open System Settings → General → Time Machine"
@@ -514,6 +557,7 @@ main() {
     get_username
     format_drive
     setup_mount
+    calculate_quota
     configure_samba
     configure_avahi
     run_tests

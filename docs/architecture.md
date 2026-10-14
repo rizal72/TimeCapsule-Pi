@@ -156,12 +156,51 @@ Enables Apple's `copyfile()` acceleration for faster file transfers.
 #### 5. Quota Management
 
 ```ini
-fruit:time machine max size = 2T
+fruit:time machine max size = 890G
 ```
 
-Sets the maximum size for Time Machine backups. macOS respects this limit and will:
+**What the option really does:** it *limits the reported disksize* (Samba
+`vfs_fruit` man page). Samba reads the band size from the sparsebundle's
+`Info.plist`, counts the band files, multiplies, and reports the share to macOS as:
+
+```text
+total = fruit:time machine max size
+used  = size of the Time Machine sparsebundle(s)
+free  = total - used          (never reported below zero)
+```
+
+macOS prunes old backups against those reported numbers only — it never sees the
+real filesystem. Two conditions are therefore required at the same time:
+
+1. **quota < real filesystem size.** Otherwise macOS believes free space always
+   exists, deletes nothing, and keeps writing until the disk is full; every write
+   then fails with `ENOSPC` (errno 28) while macOS's own `df` still shows the
+   imaginary free space. The default ext4 reservation (5% for root, invisible to
+   the SMB user) makes the last gigabytes disappear even earlier.
+2. **quota > size of the existing sparsebundle.** Otherwise `free` reports zero
+   and macOS refuses the backup outright ("the backup disk is full") *without*
+   pruning: it has no room to start from.
+
+The quota must sit in the band `used < quota < filesystem size`. `install.sh`
+sizes it at 85% of the drive, which satisfies both conditions on a fresh install
+(the sparsebundle is empty). A deployment that is already above its quota must be
+raised first, left to prune, and only then tightened — doing it in the other
+order gives `free = 0` and blocks the backup (see docs/troubleshooting.md).
+
+The option only accounts for sparsebundle images: never store other data on this
+volume, it would not be counted.
+
+macOS will:
 - Show warnings when approaching the limit
 - Start deleting old backups when limit is reached
+
+Check all three numbers:
+```bash
+# on the Pi
+df -h /mnt/timecapsule                            # real filesystem size
+sudo du -sh /mnt/timecapsule/*.sparsebundle       # what macOS counts as used
+grep "time machine max size" /etc/samba/smb.conf  # what macOS is told
+```
 
 ### How vfs_fruit Works
 

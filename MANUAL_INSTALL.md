@@ -202,12 +202,20 @@ sudo nano /etc/samba/smb.conf
    valid users = your_username
    ```
 
-2. Optionally change the share name, server name, or quota:
+2. Set the quota below the drive size:
    ```ini
    [TimeCapsule]
        path = /mnt/timecapsule
-       fruit:time machine max size = 2T    # Adjust as needed
+       # 85% of the drive size, rounded down: macOS prunes old backups against
+       # this quota only, never against the real filesystem. Above the drive
+       # size the disk fills up; below the existing sparsebundle macOS refuses
+       # to back up (docs/architecture.md section 5).
+       fruit:time machine max size = 770G     # 85% of a 1 TB drive
    ```
+   Check the drive with `df -h /mnt/timecapsule` and keep the quota clearly below
+   the `Size` column. Reusing an existing backup? Keep the quota **above** the
+   current `du -sh *.sparsebundle` until macOS has pruned it down.
+   The share name and the server name are optional changes.
 
 ### 4.4 Validate Configuration
 
@@ -418,7 +426,9 @@ You should see a `.Spotlight-V100` folder and a `Backups.backupdb` folder.
     valid users = your_username
 
     # Time Machine specific
-    fruit:time machine max size = 2T
+    # 85% of the drive size: macOS prunes against this quota only, so it must
+    # stay below the disk and above the existing sparsebundle.
+    fruit:time machine max size = 770G
     vfs objects = catia fruit streams_xattr
 ```
 
@@ -486,7 +496,7 @@ avahi-browse -a --terminate
 
 - [ ] Configure Tailscale for remote access (see [README.md](README.md#tailscale-remote-access))
 - [ ] Set up multiple users
-- [ ] Adjust quota limits
+- [ ] Verify the quota is below the drive size (`df -h /mnt/timecapsule`)
 - [ ] Monitor backup logs
 
 For advanced configuration, see [docs/architecture.md](docs/architecture.md).

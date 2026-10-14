@@ -88,7 +88,7 @@ After installation, your Time Capsule will be configured as:
 | **Server name** | `TIMECAPSULE-PI` |
 | **Share name** | `TimeCapsule` |
 | **Protocol** | SMB3 (SMB2/3 forced, SMB1 disabled) |
- | **Quota** | 1TB (configurable) |
+ | **Quota** | 85% of the drive size (set by install.sh) |
 | **Authentication** | User-based (no guest access) |
 
 ### Customization
@@ -104,7 +104,10 @@ Edit `/etc/samba/smb.conf` to customize:
     valid users = your_username
 
     # Time Machine specific
-    fruit:time machine max size = 2T    # Change quota here
+    # 85% of the drive size. macOS prunes old backups against this quota, never
+    # against the real filesystem: larger than the disk it fills up, smaller
+    # than the existing backup it refuses to run (docs/architecture.md).
+    fruit:time machine max size = 770G
     vfs objects = catia fruit streams_xattr
 ```
 
