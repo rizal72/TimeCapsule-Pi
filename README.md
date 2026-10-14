@@ -250,7 +250,7 @@ Then add them to `valid users` in `/etc/samba/smb.conf`.
 ```
 TimeCapsule-Pi/
 ├── README.md              # This file
-├── CLAUDE.md              # AI assistant guidelines
+├── AGENTS.md              # Instructions for coding agents
 ├── MANUAL_INSTALL.md      # Detailed manual setup guide
 ├── install.sh             # Automated installer script
 ├── setup/

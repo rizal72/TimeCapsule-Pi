@@ -16,6 +16,7 @@ This file provides coding conventions and guidelines for TimeCapsule-Pi, a Raspb
 - The Pi4 (100.124.43.88 / pi4.tail9350d7.ts.net via Tailscale) **does not have the repo cloned**
 - Code deployed on Pi4 is applied manually or via `install.sh`
 - SSH: `ssh pi@pi4.tail9350d7.ts.net` (or direct IP 100.124.43.88)
+- Public repo (MIT, github.com/rizal72/TimeCapsule-Pi): everything committed is visible to anyone
 
 ## Commands
 
@@ -374,6 +375,11 @@ When modifying `install.sh`:
 
 ## Important Notes
 
+- Live deployments differ from this repo: the drive carries its own volume name and mount point
+  (`Cerasuolo` at `/mnt/cerasuolo` on the Pi4). Verify the real mount point, don't assume
+  `/mnt/timecapsule`
+- The Time Machine quota is 85% of the drive, computed by `install.sh`; keep it below the drive size
+  (docs/architecture.md — a larger quota stops the backups)
 - This is a shell scripting project with no automated tests
 - Testing is manual via service status checks and Samba utilities
 - Configuration files are templates for `/etc/` production files
